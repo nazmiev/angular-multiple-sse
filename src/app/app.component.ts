@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { environment } from './environment';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -12,7 +13,7 @@ export class AppComponent implements OnInit {
     = signal([]);
 
   ngOnInit(): void {
-    const evtSource = new EventSource("https://sse.dev/test");
+    const evtSource = new EventSource(environment.serverUrl);
     evtSource.onmessage = (event) => {
       var dataobj = JSON.parse(event.data);
       this.messages.update(value => [dataobj, ...value])
