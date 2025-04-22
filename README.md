@@ -1,59 +1,63 @@
-# AngularMultipleSse
+# описание задачи
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
+У нас проект трекер процессов предприятий.
+Когда потребовалась интерактивность во фронтенд-приложении,
+мы пошли смотреть что сейчас используют и что модно.
+Кроме websocket появился только SSE.
+Еще SSE активно использовался в YouTrack, 
+который мы использовали для трекинга всех задач в компании.
+Выбор пал на него.
 
-## Development server
+## особенности SSE:
 
-To start a local development server, run:
+- односторонняя связь
+- ограниченное количество подключений: для HTTP вроде шесть, а для HTTPS много, но всё равно ограничено
+- все рекомендуют дополнительную защиту
 
-```bash
-ng serve
-```
+У нас не требуется двусторонняя связь.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+У нас HTTPS.
 
-## Code scaffolding
+А вот для защиты нужно было поискать лучшие практики.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## дополнительная защита
 
-```bash
-ng generate component component-name
-```
+Решили что для подключения к SSE клиент должен получить одноразовый токен,
+который действует пять секунд.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+И в разных компонентах мы будем использовать разные SSE потоки.
 
-```bash
-ng generate --help
-```
+Именно эти два решения привели к сложной логике с очередями на подключение и на отключение.
 
-## Building
+Возможно, лучше было сделать одну общую шину данных для пользователя,
+а уже на фронте выцеплять нужные данные для каждого компонента.
 
-To build the project run:
+Мы об этом часто вспоминаем со словами "да, надо сделать уже"
 
-```bash
-ng build
-```
+## реализация
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Создал абстрактный класс EventService с основной логикой и методами.
 
-## Running unit tests
+Создал классы для компонентов.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Для наглядности создал репозиторий с Angular проектом.
 
-```bash
-ng test
-```
+Но, по-сути статьи, нам интересен только этот файл: https://github.com/nazmiev/angular-multiple-sse/blob/master/src/app/services/event-source.service.ts
 
-## Running end-to-end tests
+В котором вся логика очереди подключений.
 
-For end-to-end (e2e) testing, run:
+## заключение
 
-```bash
-ng e2e
-```
+Если вам не нужна двусторонняя связь.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+И вы решили использовать SSE.
 
-## Additional Resources
+Шлите все данные в одно подключение.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Изоляция тут особо не нужна.
+
+А проблем доставляет кучу)
+
+## Live demo SSE:
+
+https://nazmiev.github.io/angular-multiple-sse/
